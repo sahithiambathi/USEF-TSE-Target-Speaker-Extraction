@@ -1,36 +1,24 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, RotateCcw } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, RotateCcw, Activity } from "lucide-react";
+import { useAudioWaveform } from "../hooks/useAudioWaveform";
 
-export default function AudioWavePlayer({ audioUrl, title, mode = "mixture" }) {
+export default function AudioWavePlayer({
+  audioUrl,
+  title = "Audio Track",
+  mode = "mixture", // "mixture" | "reference" | "extracted"
+  channelCode,
+}) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef(null);
 
-  // Generate deterministic pseudo-waveform heights based on track mode
-  const [waveHeights] = useState(() => {
-    // Mode-specific contour
-    if (mode === "mixture") {
-      // Overlapping noisy contours
-      return [
-        35, 60, 80, 45, 90, 75, 40, 85, 95, 65, 30, 70, 85, 90, 50, 40, 80, 95, 85,
-        60, 40, 75, 90, 65, 80, 85, 40, 55, 90, 70, 45, 80, 60, 40, 30, 20
-      ];
-    } else if (mode === "reference") {
-      // Pure clean vocal speech contour
-      return [
-        15, 25, 45, 65, 75, 80, 85, 70, 50, 20, 15, 35, 60, 85, 90, 75, 55, 25, 15,
-        20, 45, 70, 80, 65, 40, 20, 15, 20, 35, 50, 60, 40, 25, 15, 10, 10
-      ];
-    } else {
-      // Extracted output - crisp harmonic contour
-      return [
-        20, 35, 65, 85, 90, 95, 80, 60, 35, 25, 45, 75, 90, 95, 85, 60, 35, 20, 30,
-        60, 85, 90, 75, 50, 30, 25, 40, 65, 80, 70, 45, 30, 20, 15, 10, 10
-      ];
-    }
-  });
+  // Extract genuine waveform peaks from actual audio file using Web Audio API
+  const { peaks, duration: decodedDuration, isLoading: isWaveformLoading } = useAudioWaveform(
+    audioUrl,
+    44
+  );
 
   useEffect(() => {
     setIsPlaying(false);
@@ -50,7 +38,10 @@ export default function AudioWavePlayer({ audioUrl, title, mode = "mixture" }) {
       audioRef.current
         .play()
         .then(() => setIsPlaying(true))
-        .catch((err) => console.error("Playback error:", err));
+        .catch((err) => {
+          console.warn("Playback prevented or audio error:", err);
+          setIsPlaying(false);
+        });
     }
   };
 
@@ -62,37 +53,13 @@ export default function AudioWavePlayer({ audioUrl, title, mode = "mixture" }) {
 
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
-      setDuration(audioRef.current.duration || 0);
+      setAudioDuration(audioRef.current.duration || 0);
     }
   };
 
   const handleEnded = () => {
     setIsPlaying(false);
     setCurrentTime(0);
-  };
-
-  const handleSeek = (e) => {
-    const newTime = parseFloat(e.target.value);
-    setCurrentTime(newTime);
-    if (audioRef.current) {
-      audioRef.current.currentTime = newTime;
-    }
-  };
-
-  const toggleMute = () => {
-    if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
-  };
-
-  const restartAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      setCurrentTime(0);
-      audioRef.current.play();
-      setIsPlaying(true);
-    }
   };
 
   const formatTime = (secs) => {
@@ -102,126 +69,157 @@ export default function AudioWavePlayer({ audioUrl, title, mode = "mixture" }) {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const effectiveDuration = audioDuration || decodedDuration || 0;
+  const progressRatio = effectiveDuration > 0 ? currentTime / effectiveDuration : 0;
 
-  // Active bar and progress styles based on mode
-  const activeBarClass =
-    mode === "reference"
-      ? "bg-lime-400"
-      : mode === "extracted"
-      ? "bg-lime-400"
-      : "bg-teal-400";
+  // Handle clicking directly on waveform bar to seek
+  const handleBarClick = (index) => {
+    if (!audioRef.current || peaks.length === 0 || effectiveDuration <= 0) return;
+    const targetTime = (index / peaks.length) * effectiveDuration;
+    audioRef.current.currentTime = targetTime;
+    setCurrentTime(targetTime);
+  };
+
+  const isExtracted = mode === "extracted";
+  const isReference = mode === "reference";
 
   return (
-    <div className="w-full bg-[#0d121a] border border-[#1e2838] rounded-md p-3">
+    <div className="w-full flex flex-col gap-2.5">
+      {/* Hidden audio element */}
       <audio
         ref={audioRef}
         src={audioUrl}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleEnded}
+        preload="metadata"
       />
 
-      {/* Waveform Visualization Bars */}
+      {/* Real Waveform Visualizer Display */}
       <div
-        className="flex items-center justify-between gap-1 h-9 mb-2.5 px-0.5"
-        role="img"
-        aria-label={`${title} audio waveform`}
+        className={`relative w-full h-16 rounded-xl px-3 py-2 flex items-center justify-between gap-1 border transition-all duration-200 select-none ${
+          isExtracted
+            ? "bg-[var(--accent-lime-dim)] border-[var(--accent-lime)]/40 shadow-[0_0_15px_var(--accent-lime-glow)]"
+            : "bg-[var(--bg-surface-2)] border-[var(--border-subtle)]"
+        }`}
       >
-        {waveHeights.map((h, i) => {
-          const barProgress = (i / waveHeights.length) * 100;
-          const isPassed = barProgress <= progressPercent;
-          return (
-            <div
-              key={i}
-              onClick={() => {
-                if (duration > 0 && audioRef.current) {
-                  const targetTime = (i / waveHeights.length) * duration;
-                  audioRef.current.currentTime = targetTime;
-                  setCurrentTime(targetTime);
-                }
-              }}
-              className={`flex-1 rounded-[1px] cursor-pointer transition-all duration-100 ${
-                isPassed
-                  ? activeBarClass
-                  : "bg-[#1c2433] hover:bg-[#253043]"
-              }`}
-              style={{
-                height: `${h}%`,
-                transform: isPlaying && isPassed ? "scaleY(1.08)" : "scaleY(1)",
-              }}
-            />
-          );
-        })}
+        {isWaveformLoading ? (
+          <div className="w-full flex items-center justify-center gap-2 text-xs font-mono text-[var(--text-muted)]">
+            <Activity className="w-4 h-4 animate-spin text-[var(--accent-lime)]" />
+            <span>Decoding PCM audio waveform...</span>
+          </div>
+        ) : peaks.length > 0 ? (
+          <div className="w-full h-full flex items-center justify-between gap-[3px]">
+            {peaks.map((peak, idx) => {
+              const barProgress = idx / peaks.length;
+              const hasPlayed = barProgress <= progressRatio;
+
+              // Waveform bar height based on real peak (min 15%, max 100%)
+              const heightPct = Math.max(15, Math.round(peak * 100));
+
+              let barColor = "bg-[var(--text-dim)] opacity-40";
+              if (isExtracted) {
+                barColor = hasPlayed
+                  ? "bg-[var(--accent-lime)] shadow-[0_0_8px_var(--accent-lime)] opacity-100"
+                  : "bg-[var(--accent-lime)]/40";
+              } else if (isReference) {
+                barColor = hasPlayed
+                  ? "bg-[var(--accent-cyan)] opacity-100"
+                  : "bg-[var(--accent-cyan)]/40";
+              } else {
+                barColor = hasPlayed
+                  ? "bg-[var(--text-primary)] opacity-90"
+                  : "bg-[var(--text-muted)]/40";
+              }
+
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleBarClick(idx)}
+                  style={{ height: `${heightPct}%` }}
+                  className={`flex-1 rounded-full transition-all duration-100 hover:scale-y-110 cursor-pointer ${barColor}`}
+                  title={`Seek to ${formatTime((idx / peaks.length) * effectiveDuration)}`}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          <div className="w-full flex items-center justify-center text-[11px] font-mono text-[var(--text-muted)]">
+            Audio loaded
+          </div>
+        )}
       </div>
 
-      {/* Progress Bar Track */}
-      <div className="relative w-full h-1 bg-[#1a2230] rounded-full mb-2.5 cursor-pointer group">
-        <div
-          className={`absolute top-0 left-0 h-full rounded-full transition-all duration-75 ${
-            mode === "reference"
-              ? "bg-lime-400"
-              : mode === "extracted"
-              ? "bg-gradient-to-r from-teal-400 to-lime-400"
-              : "bg-teal-400"
-          }`}
-          style={{ width: `${progressPercent}%` }}
-        />
+      {/* Scrub range slider */}
+      <div className="relative flex items-center">
         <input
           type="range"
           min="0"
-          max={duration || 100}
+          max={effectiveDuration || 1}
           step="0.05"
           value={currentTime}
-          onChange={handleSeek}
-          aria-label="Seek track position"
-          className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+          onChange={(e) => {
+            const val = parseFloat(e.target.value);
+            setCurrentTime(val);
+            if (audioRef.current) audioRef.current.currentTime = val;
+          }}
+          className="w-full h-1 bg-[var(--border-subtle)] rounded-lg appearance-none cursor-pointer accent-[var(--accent-lime)]"
         />
       </div>
 
-      {/* Playback Controls & Timers */}
-      <div className="flex items-center justify-between text-xs text-slate-400 font-mono">
-        <div className="flex items-center gap-1.5">
+      {/* Control Buttons & Timers Bar */}
+      <div className="flex items-center justify-between text-xs font-mono text-[var(--text-secondary)] pt-1">
+        <div className="flex items-center gap-2">
+          {/* Play/Pause Button */}
           <button
             type="button"
             onClick={togglePlay}
-            className="w-7 h-7 rounded bg-[#16202e] hover:bg-[#1f2d40] text-slate-100 flex items-center justify-center border border-[#233145] hover:border-slate-500 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal-400 cursor-pointer"
-            title={isPlaying ? "Pause audio" : "Play audio"}
+            aria-label={isPlaying ? "Pause audio" : "Play audio"}
+            className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-lime)] ${
+              isExtracted
+                ? "bg-[var(--accent-lime)] text-[var(--accent-lime-text)] hover:bg-[var(--accent-lime-hover)] shadow-sm"
+                : "bg-[var(--bg-surface-2)] text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)]"
+            }`}
           >
-            {isPlaying ? (
-              <Pause className="w-3.5 h-3.5 fill-current text-lime-400" />
-            ) : (
-              <Play className="w-3.5 h-3.5 fill-current ml-0.5 text-slate-100" />
-            )}
+            {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current translate-x-0.5" />}
           </button>
 
-          <button
-            type="button"
-            onClick={restartAudio}
-            className="p-1 rounded hover:bg-[#16202e] text-slate-400 hover:text-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
-            title="Restart"
-          >
-            <RotateCcw className="w-3 h-3" />
-          </button>
-
-          <button
-            type="button"
-            onClick={toggleMute}
-            className="p-1 rounded hover:bg-[#16202e] text-slate-400 hover:text-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
-            title={isMuted ? "Unmute" : "Mute"}
-          >
-            {isMuted ? (
-              <VolumeX className="w-3 h-3 text-rose-400" />
-            ) : (
-              <Volume2 className="w-3 h-3" />
-            )}
-          </button>
+          {/* Time display */}
+          <span className="font-mono text-[11px] text-[var(--text-primary)]">
+            {formatTime(currentTime)} / {formatTime(effectiveDuration)}
+          </span>
         </div>
 
-        <div className="text-[11px] text-slate-400">
-          <span className="text-slate-200">{formatTime(currentTime)}</span>
-          <span className="text-slate-600 mx-1">/</span>
-          <span>{formatTime(duration)}</span>
+        {/* Volume & Replay Controls */}
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => {
+              if (audioRef.current) {
+                audioRef.current.currentTime = 0;
+                setCurrentTime(0);
+              }
+            }}
+            className="p-1.5 rounded-md hover:bg-[var(--bg-surface-2)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+            title="Restart track"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (audioRef.current) {
+                audioRef.current.muted = !isMuted;
+                setIsMuted(!isMuted);
+              }
+            }}
+            className="p-1.5 rounded-md hover:bg-[var(--bg-surface-2)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+            title={isMuted ? "Unmute" : "Mute"}
+          >
+            {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5" />}
+          </button>
         </div>
       </div>
     </div>

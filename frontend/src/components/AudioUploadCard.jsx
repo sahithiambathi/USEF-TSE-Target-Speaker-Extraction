@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { UploadCloud, FileAudio, Trash2, RefreshCw, CheckCircle2 } from "lucide-react";
+import { UploadCloud, FileAudio, Trash2, RefreshCw, CheckCircle2, Music, AlertCircle } from "lucide-react";
 import AudioWavePlayer from "./AudioWavePlayer";
 
 export default function AudioUploadCard({
@@ -9,19 +9,38 @@ export default function AudioUploadCard({
   subtitle,
   hint,
   icon: Icon,
-  variant = "mixture", // "mixture" or "reference"
+  variant = "mixture", // "mixture" | "reference"
   file,
   audioUrl,
   duration,
   onFileSelect,
   onRemove,
+  isExtracting,
 }) {
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [formatError, setFormatError] = useState(null);
+
+  const allowedExtensions = [".wav", ".mp3", ".flac", ".ogg", ".m4a"];
+
+  const validateAndSelect = (selectedFile) => {
+    if (!selectedFile) return;
+    setFormatError(null);
+
+    const name = selectedFile.name.toLowerCase();
+    const isValid = allowedExtensions.some((ext) => name.endsWith(ext));
+
+    if (!isValid) {
+      setFormatError("Unsupported audio format. Please upload WAV, MP3, FLAC, OGG, or M4A.");
+      return;
+    }
+
+    onFileSelect(selectedFile);
+  };
 
   const handleDragOver = (e) => {
     e.preventDefault();
-    setIsDragging(true);
+    if (!isExtracting) setIsDragging(true);
   };
 
   const handleDragLeave = () => {
@@ -31,14 +50,15 @@ export default function AudioUploadCard({
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
+    if (isExtracting) return;
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      onFileSelect(e.dataTransfer.files[0]);
+      validateAndSelect(e.dataTransfer.files[0]);
     }
   };
 
   const handleInputChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
-      onFileSelect(e.target.files[0]);
+      validateAndSelect(e.target.files[0]);
     }
   };
 
@@ -61,189 +81,146 @@ export default function AudioUploadCard({
 
   return (
     <div
-      className={`flex-1 flex flex-col bg-[#121721] border rounded-lg p-4 transition-all duration-200 shadow-sm ${
+      className={`flex-1 flex flex-col bg-[var(--bg-surface-1)] border rounded-2xl p-5 sm:p-6 transition-all duration-200 shadow-[var(--shadow-card)] relative ${
         isDragging
-          ? isMixture
-            ? "border-teal-400 bg-[#141d2a]"
-            : "border-lime-400 bg-[#16201e]"
-          : "border-[#1e2838] hover:border-slate-700"
+          ? "border-[var(--accent-lime)] bg-[var(--accent-lime-dim)] shadow-[0_0_20px_var(--accent-lime-glow)]"
+          : file
+          ? "border-[var(--border-subtle)]"
+          : "border-[var(--border-subtle)] hover:border-[var(--border-strong)]"
       }`}
     >
-      {/* Panel Header */}
-      <div className="flex items-start justify-between pb-3 mb-3 border-b border-[#1c2433]">
-        <div className="flex items-center gap-2.5">
+      {/* Hidden File Input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        id={id}
+        accept=".wav,.mp3,.flac,.ogg,.m4a,audio/*"
+        onChange={handleInputChange}
+        className="hidden"
+        disabled={isExtracting}
+      />
+
+      {/* Card Header */}
+      <div className="flex items-start justify-between pb-4 mb-4 border-b border-[var(--border-subtle)]">
+        <div className="flex items-center gap-3">
           <div
-            className={`w-7 h-7 rounded flex items-center justify-center border ${
+            className={`w-9 h-9 rounded-xl flex items-center justify-center border shadow-sm ${
               isMixture
-                ? "bg-[#0e1d24] text-teal-400 border-teal-900/60"
-                : "bg-[#162017] text-lime-400 border-lime-900/60"
+                ? "bg-[var(--bg-surface-2)] text-[var(--text-primary)] border-[var(--border-subtle)]"
+                : "bg-[var(--accent-lime-dim)] text-[var(--accent-lime)] border-[var(--accent-lime)]/30"
             }`}
           >
             {Icon && <Icon className="w-4 h-4" />}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[11px] font-bold text-slate-400 tracking-wider">
+              <span className="font-mono text-[10px] font-bold text-[var(--text-muted)] tracking-wider">
                 {channelCode}
               </span>
-              <h3 className="font-semibold text-slate-100 text-sm tracking-tight">{label}</h3>
+              <h3 className="font-mono font-bold text-[var(--text-primary)] text-sm tracking-tight">
+                {label}
+              </h3>
             </div>
-            <p className="text-[11px] text-slate-400 mt-0.5">{subtitle}</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5">{subtitle}</p>
           </div>
         </div>
 
         {file ? (
-          <span className="inline-flex items-center gap-1 font-mono text-[10px] text-teal-300 bg-[#0d221f] border border-teal-800/60 px-2 py-0.5 rounded">
-            <CheckCircle2 className="w-3 h-3 text-teal-400" /> LOADED
+          <span className="inline-flex items-center gap-1 font-mono text-[10px] font-bold text-[var(--accent-lime)] bg-[var(--accent-lime-dim)] border border-[var(--accent-lime)]/30 px-2 py-0.5 rounded-full">
+            <CheckCircle2 className="w-3 h-3" /> READY
           </span>
         ) : (
-          <span className="font-mono text-[10px] text-slate-500 bg-[#161d28] border border-[#222b3a] px-1.5 py-0.5 rounded">
-            AWAITING INPUT
+          <span className="font-mono text-[10px] text-[var(--text-muted)] bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] px-2 py-0.5 rounded-full">
+            EMPTY
           </span>
         )}
       </div>
 
-      {/* Hidden File Input */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleInputChange}
-        accept="audio/*,.wav,.mp3,.flac,.ogg"
-        className="hidden"
-        id={id}
-      />
+      {/* Body Area */}
+      {file && audioUrl ? (
+        /* Loaded File State: Waveform Player & Metadata */
+        <div className="flex-1 flex flex-col justify-between space-y-4">
+          {/* File Meta Info Bar */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-xs font-mono">
+            <div className="flex items-center gap-2 truncate pr-2">
+              <FileAudio className="w-4 h-4 text-[var(--accent-lime)] shrink-0" />
+              <span className="truncate font-semibold text-[var(--text-primary)]" title={file.name}>
+                {file.name}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-[var(--text-secondary)] shrink-0 text-[11px]">
+              <span>{formatFileSize(file.size)}</span>
+              <span>•</span>
+              <span className="text-[var(--text-primary)] font-bold">{formatDuration(duration)}</span>
+            </div>
+          </div>
 
-      {/* Empty Upload State vs File Player State */}
-      {!file ? (
+          {/* Genuine Web Audio Waveform Player */}
+          <div className="p-1">
+            <AudioWavePlayer
+              audioUrl={audioUrl}
+              title={file.name}
+              mode={variant}
+              channelCode={channelCode}
+            />
+          </div>
+
+          {/* Action Row: Replace / Remove */}
+          <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)] text-xs font-mono">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isExtracting}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--bg-surface-2)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)] transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Replace File</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onRemove}
+              disabled={isExtracting}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-rose-500/10 text-rose-400 hover:text-rose-300 border border-transparent hover:border-rose-500/20 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Remove</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* Empty Upload Zone */
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              fileInputRef.current?.click();
-            }
-          }}
-          className={`flex-1 min-h-[170px] border border-dashed rounded-md flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 ${
-            isMixture
-              ? "focus-visible:ring-teal-400 border-[#243044] hover:border-teal-500/70 hover:bg-[#151c29]"
-              : "focus-visible:ring-lime-400 border-[#243044] hover:border-lime-500/70 hover:bg-[#16201e]"
-          } bg-[#0e131b]`}
+          onClick={() => !isExtracting && fileInputRef.current?.click()}
+          className="flex-1 flex flex-col items-center justify-center p-8 border-2 border-dashed border-[var(--border-subtle)] hover:border-[var(--accent-lime)]/60 rounded-xl bg-[var(--bg-surface-0)]/60 hover:bg-[var(--bg-surface-2)]/50 transition-all duration-200 cursor-pointer text-center group min-h-[190px]"
         >
-          {/* Animated Graphic representation of input type */}
-          <div className="w-full max-w-[200px] h-10 mb-2 flex items-center justify-center relative overflow-hidden">
-            {isMixture ? (
-              // Mixture: Overlapping dual waveforms representing multi-speaker interference
-              <svg className="w-full h-10" viewBox="0 0 200 40" fill="none">
-                {/* Wave 1: Speaker A (Muted Teal) */}
-                <path
-                  d="M0 20 Q 25 5, 50 20 T 100 20 T 150 20 T 200 20"
-                  stroke="#2dd4bf"
-                  strokeWidth="1.75"
-                  className="opacity-75 transition-transform duration-700 hover:scale-y-110"
-                />
-                {/* Wave 2: Speaker B (Zinc / Slate-500 overlapping) */}
-                <path
-                  d="M0 20 Q 20 32, 45 20 T 95 20 T 145 20 T 200 20"
-                  stroke="#64748b"
-                  strokeWidth="1.5"
-                  strokeDasharray="3 3"
-                  className="opacity-80"
-                />
-              </svg>
-            ) : (
-              // Reference: Single clean sine wave representing clean target speaker
-              <svg className="w-full h-10" viewBox="0 0 200 40" fill="none">
-                <path
-                  d="M0 20 Q 25 7, 50 20 T 100 20 T 150 20 T 200 20"
-                  stroke="#a3e635"
-                  strokeWidth="2"
-                  className="opacity-90"
-                />
-              </svg>
-            )}
+          <div className="w-12 h-12 rounded-2xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-muted)] group-hover:text-[var(--accent-lime)] group-hover:border-[var(--accent-lime)]/40 transition-colors mb-3">
+            <UploadCloud className="w-6 h-6" />
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-slate-200 font-medium mb-1">
-            <UploadCloud
-              className={`w-4 h-4 ${isMixture ? "text-teal-400" : "text-lime-400"}`}
-            />
-            <span>Drop audio file or</span>
-            <span
-              className={`underline font-mono ${
-                isMixture ? "text-teal-400 hover:text-teal-300" : "text-lime-400 hover:text-lime-300"
-              }`}
-            >
-              Browse
-            </span>
-          </div>
-          <p className="text-[10px] text-slate-500 font-mono">
-            {isMixture
-              ? "WAV, MP3, FLAC (Overlapping voices)"
-              : "WAV, MP3, FLAC (Clean solo reference clip)"}
+          <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--text-primary)] group-hover:text-[var(--accent-lime)] transition-colors">
+            Click to upload or drag audio here
+          </h4>
+          <p className="text-[11px] text-[var(--text-secondary)] max-w-xs mt-1.5">
+            {hint}
           </p>
-        </div>
-      ) : (
-        <div className="flex-1 flex flex-col justify-between space-y-3 animate-enter-workspace">
-          {/* File Metadata Bar */}
-          <div className="flex items-center justify-between p-2.5 rounded bg-[#0d121a] border border-[#1e2838]">
-            <div className="flex items-center gap-2 min-w-0 pr-2">
-              <FileAudio
-                className={`w-4 h-4 shrink-0 ${isMixture ? "text-teal-400" : "text-lime-400"}`}
-              />
-              <div className="min-w-0">
-                <p className="text-xs font-mono font-medium text-slate-200 truncate">{file.name}</p>
-                <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400 mt-0.5">
-                  <span>{formatFileSize(file.size)}</span>
-                  <span>•</span>
-                  <span>{formatDuration(duration)}</span>
-                </div>
-              </div>
-            </div>
 
-            {/* Replace & Remove Controls */}
-            <div className="flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="p-1 rounded text-slate-400 hover:text-slate-100 hover:bg-[#1a2332] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400 cursor-pointer"
-                title="Replace audio file"
-                aria-label={`Replace ${label} file`}
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={onRemove}
-                className="p-1 rounded text-slate-400 hover:text-rose-400 hover:bg-[#1a2332] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-400 cursor-pointer"
-                title="Remove audio file"
-                aria-label={`Remove ${label} file`}
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          <div className="mt-3 inline-flex items-center gap-1.5 font-mono text-[10px] text-[var(--text-muted)] bg-[var(--bg-surface-2)] px-2.5 py-1 rounded-md border border-[var(--border-subtle)]">
+            <Music className="w-3 h-3" />
+            <span>WAV, MP3, FLAC, M4A up to 25MB</span>
           </div>
-
-          {/* Audio Waveform Player */}
-          {audioUrl && (
-            <AudioWavePlayer
-              audioUrl={audioUrl}
-              title={label}
-              mode={isMixture ? "mixture" : "reference"}
-            />
-          )}
         </div>
       )}
 
-      {/* Helper Guidance Hint */}
-      {hint && (
-        <p className="text-[11px] text-slate-500 mt-2.5 font-mono flex items-center gap-1.5">
-          <span className="text-slate-400 font-semibold">[INFO]</span> {hint}
-        </p>
+      {/* Format Error Notice */}
+      {formatError && (
+        <div className="mt-3 p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{formatError}</span>
+        </div>
       )}
     </div>
   );

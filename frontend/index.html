@@ -4,10 +4,39 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>USEF-TSE | Target Speaker Extraction</title>
-    <meta name="description" content="Universal Speaker Embedding Free Target Speaker Extraction - College Research Project" />
+    <title>USEF-TSE – Target Speaker Extraction Studio</title>
+    <meta
+      name="description"
+      content="Isolate a target speaker from mixed speech using a short reference recording and AI-powered speech extraction."
+    />
+    <script>
+      (function() {
+        try {
+          const stored = localStorage.getItem('usef_tse_theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+          // Default to dark mode (Graphite Studio) unless user selected light or system prefers light
+          let theme = 'dark';
+          if (stored === 'light' || stored === 'dark') {
+            theme = stored;
+          } else if (prefersLight && !prefersDark) {
+            theme = 'light';
+          }
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
   </head>
-  <body>
+  <body class="bg-[var(--bg-page)] text-[var(--text-primary)] antialiased transition-colors duration-200">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
