@@ -1,91 +1,90 @@
 import React from "react";
-import { Cpu, Layers, GitBranch, BookOpen, ExternalLink, Award } from "lucide-react";
+import { Cpu, Layers, GitBranch, ExternalLink, Award } from "lucide-react";
 
 export default function AboutResearchSection() {
   return (
-    <section id="research" className="py-16 sm:py-24 border-b border-[var(--border-subtle)] bg-[var(--bg-surface-0)]/50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+    <section id="research" className="py-16 sm:py-24 border-b border-[var(--border-subtle)] bg-[var(--bg-canvas)]/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-medium bg-[var(--bg-surface-2)] text-[var(--accent-lime)] border border-[var(--border-subtle)] mb-3">
-            <BookOpen className="w-3.5 h-3.5 text-[var(--accent-lime)]" />
-            <span>ACADEMIC FOUNDATION</span>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[var(--bg-surface-2)] text-[var(--accent-lime)] border border-[var(--border-subtle)] mb-3 uppercase tracking-wider">
+            <span>RESEARCH ARCHITECTURE</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-mono font-bold tracking-tight text-[var(--text-primary)]">
-            About the USEF-TSE Research
+          <h2 className="text-3xl sm:text-4xl font-sans font-black tracking-tight text-[var(--text-primary)] uppercase">
+            HOW USEF-TSE WORKS UNDER THE HOOD
           </h2>
           <p className="mt-3 text-sm text-[var(--text-secondary)] font-sans">
-            Universal Speaker Embedding Free Target Speaker Extraction removes fixed speaker verification networks in favor of direct cross-attention.
+            Universal Speaker Embedding Free Target Speaker Extraction replaces rigid verification networks with direct time-frequency cross-attention.
           </p>
         </div>
 
-        {/* Feature Grid */}
+        {/* 3 Core Architecture Pillars */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1: USEF Paradigm */}
-          <div className="p-6 rounded-2xl bg-[var(--bg-surface-1)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] flex flex-col justify-between">
+          {/* Pillar 1 */}
+          <div className="p-6 sm:p-7 rounded-3xl bg-[var(--bg-surface-0)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] flex flex-col justify-between">
             <div>
-              <div className="w-10 h-10 rounded-xl bg-[var(--accent-lime-dim)] text-[var(--accent-lime)] border border-[var(--accent-lime)]/30 flex items-center justify-center mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-[var(--accent-lime-dim)] text-[var(--accent-lime)] flex items-center justify-center mb-5">
                 <Cpu className="w-5 h-5" />
               </div>
-              <h3 className="font-mono font-bold text-base text-[var(--text-primary)] mb-2">
+              <h3 className="font-mono font-bold text-sm text-[var(--text-primary)] uppercase tracking-wide mb-2">
                 1. Embedding-Free Paradigm
               </h3>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Conventional TSE systems depend on a pre-trained speaker verification network (e.g., d-vector, x-vector, or ECAPA-TDNN) that forces reference audio into a single 1D vector. USEF-TSE bypasses fixed speaker embeddings entirely, computing multi-head cross-attention directly between mixture and reference time-frequency features.
+                Traditional TSE relies on pre-trained speaker verification models (d-vectors, x-vectors, ECAPA-TDNN) that compress reference audio into a single static 1D vector. USEF-TSE eliminates this bottleneck by learning multi-head cross-attention directly between mixture and raw reference spectrogram features.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] text-[11px] font-mono text-[var(--accent-lime)] font-semibold">
-              End-to-End Cross-Attention
+            <div className="mt-5 pt-3 border-t border-[var(--border-subtle)] text-[11px] font-mono text-[var(--accent-lime)] font-bold">
+              Direct Cross-Attention
             </div>
           </div>
 
-          {/* Card 2: TFGridNet Backbone */}
-          <div className="p-6 rounded-2xl bg-[var(--bg-surface-1)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] flex flex-col justify-between">
+          {/* Pillar 2 */}
+          <div className="p-6 sm:p-7 rounded-3xl bg-[var(--bg-surface-0)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] flex flex-col justify-between">
             <div>
-              <div className="w-10 h-10 rounded-xl bg-[var(--bg-surface-2)] text-[var(--accent-cyan)] border border-[var(--border-subtle)] flex items-center justify-center mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-[var(--bg-surface-2)] text-[var(--accent-coral)] flex items-center justify-center mb-5">
                 <Layers className="w-5 h-5" />
               </div>
-              <h3 className="font-mono font-bold text-base text-[var(--text-primary)] mb-2">
+              <h3 className="font-mono font-bold text-sm text-[var(--text-primary)] uppercase tracking-wide mb-2">
                 2. TFGridNet Backbone
               </h3>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Employs 6 GridNetV2 blocks operating iteratively across time and frequency axes. Full-band and sub-band BLSTMs paired with cross-frame attention allow the model to follow harmonic trajectories and unmix overlapping speech with minimal distortion.
+                Powered by 6 GridNetV2 blocks with intra-frame and inter-frame BLSTM recurrence. The network tracks vocal pitch harmonics across time and frequency axes simultaneously, synthesizing a precise separation mask that preserves target voice details while stripping interference.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] text-[11px] font-mono text-[var(--accent-cyan)] font-semibold">
+            <div className="mt-5 pt-3 border-t border-[var(--border-subtle)] text-[11px] font-mono text-[var(--accent-coral)] font-bold">
               15.6M Parameters • 6 Blocks
             </div>
           </div>
 
-          {/* Card 3: Complex STFT Pipeline */}
-          <div className="p-6 rounded-2xl bg-[var(--bg-surface-1)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] flex flex-col justify-between">
+          {/* Pillar 3 */}
+          <div className="p-6 sm:p-7 rounded-3xl bg-[var(--bg-surface-0)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] flex flex-col justify-between">
             <div>
-              <div className="w-10 h-10 rounded-xl bg-[var(--bg-surface-2)] text-[var(--text-primary)] border border-[var(--border-subtle)] flex items-center justify-center mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-[var(--bg-surface-2)] text-[var(--text-primary)] flex items-center justify-center mb-5">
                 <GitBranch className="w-5 h-5" />
               </div>
-              <h3 className="font-mono font-bold text-base text-[var(--text-primary)] mb-2">
+              <h3 className="font-mono font-bold text-sm text-[var(--text-primary)] uppercase tracking-wide mb-2">
                 3. Complex STFT Synthesis
               </h3>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Both audio inputs are standardized to 8000 Hz, converted into real and imaginary spectral components via STFT (n_fft=128, hop=64), processed through neural complex masks, and seamlessly reconstructed into clean WAV audio through inverse STFT (iSTFT).
+                Both audio inputs are resampled to 8000 Hz and processed in the complex time-frequency domain via Short-Time Fourier Transform (STFT, n_fft=128, hop=64). Inverse STFT (iSTFT) reconstructs the clean time-domain speech waveform ready for immediate listening and download.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] text-[11px] font-mono text-[var(--text-muted)] font-semibold">
-              8 kHz Sample Rate • Complex Domain
+            <div className="mt-5 pt-3 border-t border-[var(--border-subtle)] text-[11px] font-mono text-[var(--text-muted)] font-bold">
+              8 kHz Complex Domain Synthesis
             </div>
           </div>
         </div>
 
-        {/* Paper Citation Banner */}
-        <div className="mt-8 p-6 rounded-2xl bg-[var(--bg-surface-1)] border border-[var(--border-subtle)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
-          <div className="flex items-start gap-3">
-            <Award className="w-5 h-5 text-[var(--accent-lime)] shrink-0 mt-0.5" />
+        {/* Paper Citation Card */}
+        <div className="mt-8 p-6 sm:p-7 rounded-3xl bg-[var(--bg-surface-0)] border border-[var(--border-subtle)] flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-sm">
+          <div className="flex items-start gap-3.5">
+            <Award className="w-6 h-6 text-[var(--accent-lime)] shrink-0 mt-0.5" />
             <div>
               <h4 className="font-mono font-bold text-xs uppercase tracking-wider text-[var(--text-primary)]">
-                Paper: USEF-TSE: Universal Speaker Embedding Free Target Speaker Extraction
+                USEF-TSE: Universal Speaker Embedding Free Target Speaker Extraction
               </h4>
               <p className="text-xs text-[var(--text-secondary)] mt-1 font-sans">
-                Z. Bang et al. (Interspeech / ArXiv 2409.02615). Pretrained checkpoint evaluated on the WSJ0-2mix speech separation benchmark.
+                Z. Bang et al. (Interspeech / ArXiv 2409.02615). Pretrained checkpoint evaluated on the WSJ0-2mix target speaker extraction benchmark.
               </p>
             </div>
           </div>
@@ -94,7 +93,7 @@ export default function AboutResearchSection() {
             href="https://arxiv.org/abs/2409.02615"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-mono font-bold bg-[var(--bg-surface-2)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-bold bg-[var(--bg-surface-2)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-[var(--accent-lime)]/40 transition-all cursor-pointer shrink-0"
           >
             <span>Read on ArXiv</span>
             <ExternalLink className="w-3.5 h-3.5 text-[var(--accent-lime)]" />

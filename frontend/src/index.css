@@ -2,72 +2,80 @@
 
 @layer base {
   :root {
-    /* Light Mode – Soft Studio */
-    --bg-page: #f8f9fb;
+    /* Light Theme – Neon Brutalist Soft Studio */
+    --bg-page: #f6f6f2;
+    --bg-canvas: #ebeae3;
     --bg-surface-0: #ffffff;
     --bg-surface-1: #ffffff;
-    --bg-surface-2: #f1f3f7;
-    --bg-surface-3: #e6eaf0;
-    --bg-surface-hover: #eceef2;
-    --border-subtle: #e2e6ec;
-    --border-strong: #cbd5e1;
-    --border-focus: #84cc16;
-    
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
-    --text-dim: #94a3b8;
+    --bg-surface-2: #f0efe8;
+    --bg-surface-3: #e5e4dc;
+    --bg-surface-hover: #e2e1d7;
 
-    /* Electric Lime Accent - High contrast on light */
+    --border-subtle: #dbdad1;
+    --border-strong: #b8b7ab;
+    --border-focus: #84cc16;
+
+    --text-primary: #0a0d12;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --text-dim: #a0aec0;
+
+    /* Electric Lime Accent */
     --accent-lime: #84cc16;
     --accent-lime-hover: #65a30d;
     --accent-lime-dim: rgba(132, 204, 22, 0.14);
-    --accent-lime-text: #0f172a;
-    --accent-lime-glow: rgba(132, 204, 22, 0.25);
+    --accent-lime-text: #05070a;
+    --accent-lime-glow: rgba(132, 204, 22, 0.35);
 
-    /* Secondary Cyan / Teal Accent for multi-speaker layers */
-    --accent-cyan: #0d9488;
-    --accent-cyan-dim: rgba(13, 148, 136, 0.12);
+    /* Coral / Orange Accent */
+    --accent-coral: #ea580c;
+    --accent-coral-dim: rgba(234, 88, 12, 0.12);
 
-    --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
-    --shadow-popover: 0 10px 25px -3px rgba(15, 23, 42, 0.08);
+    --shadow-card: 0 4px 25px -4px rgba(10, 13, 18, 0.08);
+    --shadow-chassis: 0 20px 50px -10px rgba(10, 13, 18, 0.12);
 
-    --grid-line-color: rgba(15, 23, 42, 0.04);
+    --ambient-glow-left: rgba(234, 88, 12, 0.06);
+    --ambient-glow-right: rgba(132, 204, 22, 0.10);
+    --grid-line: rgba(10, 13, 18, 0.04);
   }
 
   .dark,
   [data-theme="dark"] {
-    /* Dark Mode – Graphite Studio */
-    --bg-page: #0a0c10;
-    --bg-surface-0: #0f1217;
-    --bg-surface-1: #141720;
-    --bg-surface-2: #1b202c;
-    --bg-surface-3: #222938;
-    --bg-surface-hover: #262e3e;
-    --border-subtle: rgba(255, 255, 255, 0.07);
-    --border-strong: rgba(255, 255, 255, 0.14);
+    /* Dark Theme – Audio Signal Neon Brutalist Studio */
+    --bg-page: #05070a;
+    --bg-canvas: #080b10;
+    --bg-surface-0: #0b0f15;
+    --bg-surface-1: #10151e;
+    --bg-surface-2: #161c28;
+    --bg-surface-3: #1e2637;
+    --bg-surface-hover: #232c3f;
+
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
     --border-focus: #a3e635;
 
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
-    --text-dim: #4b5563;
+    --text-primary: #ffffff;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-dim: #475569;
 
-    /* Electric Lime Accent - Vibrant on graphite */
+    /* Electric Lime Accent */
     --accent-lime: #a3e635;
-    --accent-lime-hover: #bef264;
-    --accent-lime-dim: rgba(163, 230, 53, 0.15);
-    --accent-lime-text: #0a0c10;
-    --accent-lime-glow: rgba(163, 230, 53, 0.35);
+    --accent-lime-hover: #bbf451;
+    --accent-lime-dim: rgba(163, 230, 53, 0.16);
+    --accent-lime-text: #05070a;
+    --accent-lime-glow: rgba(163, 230, 53, 0.45);
 
-    /* Secondary Cyan Accent */
-    --accent-cyan: #2dd4bf;
-    --accent-cyan-dim: rgba(45, 212, 191, 0.15);
+    /* Coral / Orange Accent */
+    --accent-coral: #ff6b35;
+    --accent-coral-dim: rgba(255, 107, 53, 0.18);
 
-    --shadow-card: 0 4px 24px -2px rgba(0, 0, 0, 0.6);
-    --shadow-popover: 0 12px 30px -4px rgba(0, 0, 0, 0.7);
+    --shadow-card: 0 10px 35px -5px rgba(0, 0, 0, 0.7);
+    --shadow-chassis: 0 25px 60px -12px rgba(0, 0, 0, 0.85);
 
-    --grid-line-color: rgba(255, 255, 255, 0.025);
+    --ambient-glow-left: rgba(255, 107, 53, 0.12);
+    --ambient-glow-right: rgba(163, 230, 53, 0.18);
+    --grid-line: rgba(255, 255, 255, 0.028);
   }
 
   html {
@@ -88,95 +96,96 @@
   }
 }
 
-/* Studio Technical Grid Pattern */
+/* Subtle Technical Audio Grid Background */
 .studio-grid-bg {
   background-image:
-    linear-gradient(to right, var(--grid-line-color) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line-color) 1px, transparent 1px);
-  background-size: 36px 36px;
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Atmospheric Studio Ambient Lights */
+.studio-ambient-lighting {
+  position: relative;
+}
+.studio-ambient-lighting::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -10%;
+  width: 50vw;
+  height: 600px;
+  background: radial-gradient(circle, var(--ambient-glow-left) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(80px);
+}
+.studio-ambient-lighting::after {
+  content: "";
+  position: absolute;
+  top: 50px;
+  right: -10%;
+  width: 55vw;
+  height: 700px;
+  background: radial-gradient(circle, var(--ambient-glow-right) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(90px);
 }
 
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-surface-0);
+  background: var(--bg-page);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: var(--accent-lime);
 }
 
-/* Animations */
-@keyframes pulseGlow {
-  0%, 100% {
-    opacity: 0.85;
-    filter: drop-shadow(0 0 6px var(--accent-lime-glow));
-  }
-  50% {
-    opacity: 1;
-    filter: drop-shadow(0 0 14px var(--accent-lime-glow));
-  }
+/* Neon Brutalist Glowing Shadows */
+.glow-lime-sm {
+  box-shadow: 0 0 15px var(--accent-lime-glow);
+}
+.glow-lime-lg {
+  box-shadow: 0 0 30px var(--accent-lime-glow), 0 0 60px var(--accent-lime-glow);
+}
+.glow-text-lime {
+  text-shadow: 0 0 20px var(--accent-lime-glow);
 }
 
-@keyframes scanLaser {
-  0% {
-    left: -10%;
-  }
-  100% {
-    left: 110%;
-  }
+/* Keyframes */
+@keyframes pulseScanline {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
 }
 
-@keyframes waveFlow1 {
-  0% { transform: translateX(0); }
-  50% { transform: translateX(-20px); }
-  100% { transform: translateX(0); }
+@keyframes waveBounce {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
 }
 
-@keyframes waveFlow2 {
-  0% { transform: translateX(0); }
-  50% { transform: translateX(20px); }
-  100% { transform: translateX(0); }
+@keyframes laserSweep {
+  0% { left: 0%; opacity: 0.8; }
+  50% { left: 95%; opacity: 1; }
+  100% { left: 0%; opacity: 0.8; }
 }
 
-@keyframes targetPulse {
-  0%, 100% {
-    stroke-width: 3;
-    opacity: 0.9;
-  }
-  50% {
-    stroke-width: 4.5;
-    opacity: 1;
-  }
+.animate-scanline {
+  animation: pulseScanline 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.animate-pulse-glow {
-  animation: pulseGlow 2.4s ease-in-out infinite;
+.animate-laser-sweep {
+  animation: laserSweep 4s ease-in-out infinite;
 }
 
-.animate-scan-laser {
-  animation: scanLaser 2.2s linear infinite;
-}
-
-.animate-wave-flow-1 {
-  animation: waveFlow1 6s ease-in-out infinite;
-}
-
-.animate-wave-flow-2 {
-  animation: waveFlow2 7s ease-in-out infinite;
-}
-
-.animate-target-pulse {
-  animation: targetPulse 2s ease-in-out infinite;
-}
-
-/* Respect user reduced-motion preferences */
+/* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

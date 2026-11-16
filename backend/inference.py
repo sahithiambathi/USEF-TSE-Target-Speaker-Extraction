@@ -108,6 +108,9 @@ class USEFExtractor:
         self._initialize_model()
 
     def _initialize_model(self):
+        self.model_status = "loading"
+        self.status_detail = "Loading TFGridNet layers and PyTorch checkpoint..."
+
         if not USEF_IMPORTS_AVAILABLE:
             self.model_status = "error"
             self.status_detail = f"Failed to import USEF-TSE architecture: {IMPORT_ERROR}"

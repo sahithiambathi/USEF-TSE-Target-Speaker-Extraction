@@ -32,6 +32,18 @@ SAMPLES_DIR.mkdir(parents=True, exist_ok=True)
 extractor = USEFExtractor()
 
 
+@app.get("/health")
+@app.get("/api/health")
+def health_check():
+    """Fast health check endpoint for system uptime monitoring."""
+    return {
+        "status": "ok",
+        "model_status": extractor.model_status,
+        "detail": extractor.status_detail,
+        "device": str(extractor.device),
+    }
+
+
 @app.get("/api/status")
 def get_status():
     """Returns model and system readiness status."""
