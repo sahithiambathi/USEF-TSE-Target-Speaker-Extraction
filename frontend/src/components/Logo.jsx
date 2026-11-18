@@ -4,29 +4,30 @@ export default function Logo({ size = "default", className = "" }) {
   const isSmall = size === "small";
   const isLarge = size === "large";
 
+  const iconDims = isSmall ? "w-6 h-6" : isLarge ? "w-10 h-10" : "w-8 h-8";
+
   return (
     <div className={`flex items-center gap-2.5 select-none ${className}`}>
-      {/* Equalizer Waveform Icon matching reference design */}
-      <div className="flex items-center gap-[2.5px] h-6 py-0.5">
-        <span className="w-[3px] h-3 bg-[var(--accent-lime)] rounded-full animate-pulse" />
-        <span className="w-[3px] h-5 bg-[var(--accent-lime)] rounded-full animate-pulse" style={{ animationDelay: "150ms" }} />
-        <span className="w-[3px] h-6 bg-[var(--accent-lime)] rounded-full animate-pulse" style={{ animationDelay: "300ms" }} />
-        <span className="w-[3px] h-4 bg-[var(--accent-lime)] rounded-full animate-pulse" style={{ animationDelay: "450ms" }} />
-        <span className="w-[3px] h-2 bg-[var(--accent-lime)] rounded-full animate-pulse" style={{ animationDelay: "600ms" }} />
+      {/* Brand Icon from user-supplied image */}
+      <div className={`relative ${iconDims} rounded-lg flex items-center justify-center overflow-hidden bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] shadow-sm transition-all duration-200 group-hover:border-[var(--accent-lime)]`}>
+        <img
+          src="/logo.png"
+          alt="USEF-TSE"
+          className="w-full h-full object-contain p-0.5 dark:invert-0"
+          style={{ filter: 'var(--logo-filter, none)' }}
+        />
       </div>
 
       {/* Brand Typography */}
-      <div className="flex items-center gap-2">
-        <span
-          className={`font-mono font-black tracking-tight text-[var(--text-primary)] ${
-            isLarge ? "text-2xl" : isSmall ? "text-base" : "text-lg"
-          }`}
-        >
+      <div className="flex flex-col">
+        <span className={`font-mono font-bold tracking-tight text-[var(--text-primary)] ${isLarge ? "text-xl" : "text-base"}`}>
           USEF-TSE
         </span>
-        <span className="text-[10px] uppercase font-mono font-bold px-1.5 py-0.5 rounded bg-[var(--accent-lime-dim)] text-[var(--accent-lime)] border border-[var(--accent-lime)]/30">
-          Studio
-        </span>
+        {!isSmall && (
+          <span className="text-[10px] text-[var(--text-secondary)] font-medium tracking-tight hidden sm:block">
+            Target Speaker Extraction
+          </span>
+        )}
       </div>
     </div>
   );

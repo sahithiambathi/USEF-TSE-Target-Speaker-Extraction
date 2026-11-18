@@ -2,80 +2,106 @@
 
 @layer base {
   :root {
-    /* Light Theme – Neon Brutalist Soft Studio */
-    --bg-page: #f6f6f2;
-    --bg-canvas: #ebeae3;
-    --bg-surface-0: #ffffff;
-    --bg-surface-1: #ffffff;
-    --bg-surface-2: #f0efe8;
-    --bg-surface-3: #e5e4dc;
-    --bg-surface-hover: #e2e1d7;
+    /* Light Mode – Silver, Dusty Blue & Champagne Gold Studio (Image 5 Palette) */
+    --bg-page: #edf2f6;          /* Soft silver-blue ambient base */
+    --bg-surface-0: #f8fafc;
+    --bg-surface-1: #ffffff;      /* Clean card surface */
+    --bg-surface-2: #dfe3e4;      /* Soft silver (#DFE3E4) */
+    --bg-surface-3: #bfd0d7;      /* Pale blue-grey (#BFD0D7) */
+    --bg-surface-hover: #d3dfe6;
 
-    --border-subtle: #dbdad1;
-    --border-strong: #b8b7ab;
-    --border-focus: #84cc16;
+    --border-subtle: rgba(141, 170, 196, 0.28); /* Steel blue (#8DAAC4) subtle */
+    --border-strong: rgba(113, 159, 202, 0.45); /* Sky blue (#719FCA) strong */
+    --border-focus: #efbb78;                    /* Champagne gold focus */
 
-    --text-primary: #0a0d12;
-    --text-secondary: #4a5568;
-    --text-muted: #718096;
-    --text-dim: #a0aec0;
+    --text-primary: #162330;      /* Deep navy for high contrast readability */
+    --text-secondary: #4a6074;    /* Muted slate blue */
+    --text-muted: #6b8296;
+    --text-dim: #8daac4;          /* Steel blue (#8DAAC4) */
 
-    /* Electric Lime Accent */
-    --accent-lime: #84cc16;
-    --accent-lime-hover: #65a30d;
-    --accent-lime-dim: rgba(132, 204, 22, 0.14);
-    --accent-lime-text: #05070a;
-    --accent-lime-glow: rgba(132, 204, 22, 0.35);
+    /* Warm Champagne Gold Accent (#EFBB78 from Image 5) */
+    --accent-gold: #efbb78;
+    --accent-gold-hover: #e5aa5d;
+    --accent-gold-dim: rgba(239, 187, 120, 0.2);
+    --accent-gold-text: #162330;
+    --accent-gold-glow: rgba(239, 187, 120, 0.4);
 
-    /* Coral / Orange Accent */
-    --accent-coral: #ea580c;
-    --accent-coral-dim: rgba(234, 88, 12, 0.12);
+    /* Blue Accents from Image 5 */
+    --accent-sky: #719fca;        /* Sky blue (#719FCA) */
+    --accent-dusty: #a6bfd1;      /* Dusty blue (#A6BFD1) */
+    --accent-steel: #8daac4;      /* Steel blue (#8DAAC4) */
 
-    --shadow-card: 0 4px 25px -4px rgba(10, 13, 18, 0.08);
-    --shadow-chassis: 0 20px 50px -10px rgba(10, 13, 18, 0.12);
+    /* Map interactive accents to sky/dusty blue in light mode */
+    --accent-purple: #719fca;
+    --accent-purple-hover: #5d8db8;
+    --accent-purple-dim: rgba(113, 159, 202, 0.15);
+    --accent-purple-glow: rgba(113, 159, 202, 0.3);
 
-    --ambient-glow-left: rgba(234, 88, 12, 0.06);
-    --ambient-glow-right: rgba(132, 204, 22, 0.10);
-    --grid-line: rgba(10, 13, 18, 0.04);
+    --accent-lime: #efbb78;
+    --accent-lime-hover: #e5aa5d;
+    --accent-lime-dim: rgba(239, 187, 120, 0.2);
+    --accent-lime-text: #162330;
+    --accent-lime-glow: rgba(239, 187, 120, 0.4);
+    --accent-cyan: #8daac4;
+
+    /* Microphone Lighting in Light Mode: subtle dusty-blue & champagne-gold */
+    --mic-glow-1: rgba(113, 159, 202, 0.25);
+    --mic-glow-2: rgba(239, 187, 120, 0.22);
+
+    --shadow-card: 0 4px 20px -2px rgba(22, 35, 48, 0.08);
+    --shadow-popover: 0 10px 25px -3px rgba(22, 35, 48, 0.12);
+
+    --grid-line-color: rgba(141, 170, 196, 0.06);
+    --logo-filter: none;
   }
 
   .dark,
   [data-theme="dark"] {
-    /* Dark Theme – Audio Signal Neon Brutalist Studio */
-    --bg-page: #05070a;
-    --bg-canvas: #080b10;
-    --bg-surface-0: #0b0f15;
-    --bg-surface-1: #10151e;
-    --bg-surface-2: #161c28;
-    --bg-surface-3: #1e2637;
-    --bg-surface-hover: #232c3f;
+    /* Dark Mode – Midnight Navy, Charcoal & Deep Violet Studio (Preserved) */
+    --bg-page: #090a10;
+    --bg-surface-0: #0d0e17;
+    --bg-surface-1: #131422;
+    --bg-surface-2: #1a1c30;
+    --bg-surface-3: #232540;
+    --bg-surface-hover: #2b2e4d;
+    --border-subtle: rgba(168, 85, 247, 0.18);
+    --border-strong: rgba(168, 85, 247, 0.35);
+    --border-focus: #f59e0b;
 
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-strong: rgba(255, 255, 255, 0.16);
-    --border-focus: #a3e635;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
 
-    --text-primary: #ffffff;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --text-dim: #475569;
+    /* Warm Champagne Gold Accent */
+    --accent-gold: #f59e0b;
+    --accent-gold-hover: #fbbf24;
+    --accent-gold-dim: rgba(245, 158, 11, 0.15);
+    --accent-gold-text: #090a10;
+    --accent-gold-glow: rgba(245, 158, 11, 0.35);
 
-    /* Electric Lime Accent */
-    --accent-lime: #a3e635;
-    --accent-lime-hover: #bbf451;
-    --accent-lime-dim: rgba(163, 230, 53, 0.16);
-    --accent-lime-text: #05070a;
-    --accent-lime-glow: rgba(163, 230, 53, 0.45);
+    /* Rich Purple / Violet Accent */
+    --accent-purple: #a855f7;
+    --accent-purple-hover: #c084fc;
+    --accent-purple-dim: rgba(168, 85, 247, 0.16);
+    --accent-purple-glow: rgba(168, 85, 247, 0.3);
 
-    /* Coral / Orange Accent */
-    --accent-coral: #ff6b35;
-    --accent-coral-dim: rgba(255, 107, 53, 0.18);
+    --accent-lime: #f59e0b;
+    --accent-lime-hover: #fbbf24;
+    --accent-lime-dim: rgba(245, 158, 11, 0.15);
+    --accent-lime-text: #090a10;
+    --accent-lime-glow: rgba(245, 158, 11, 0.35);
+    --accent-cyan: #a855f7;
 
-    --shadow-card: 0 10px 35px -5px rgba(0, 0, 0, 0.7);
-    --shadow-chassis: 0 25px 60px -12px rgba(0, 0, 0, 0.85);
+    /* Microphone Lighting in Dark Mode: subtle purple & champagne-gold */
+    --mic-glow-1: rgba(168, 85, 247, 0.32);
+    --mic-glow-2: rgba(245, 158, 11, 0.28);
 
-    --ambient-glow-left: rgba(255, 107, 53, 0.12);
-    --ambient-glow-right: rgba(163, 230, 53, 0.18);
-    --grid-line: rgba(255, 255, 255, 0.028);
+    --shadow-card: 0 4px 24px -2px rgba(0, 0, 0, 0.65);
+    --shadow-popover: 0 12px 30px -4px rgba(0, 0, 0, 0.8);
+
+    --grid-line-color: rgba(168, 85, 247, 0.035);
+    --logo-filter: invert(1);
   }
 
   html {
@@ -96,96 +122,100 @@
   }
 }
 
-/* Subtle Technical Audio Grid Background */
-.studio-grid-bg {
-  background-image:
-    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-  background-size: 40px 40px;
+/* Typography Helpers for Editorial Audio Studio */
+.font-editorial {
+  font-family: "Playfair Display", Georgia, Cambria, "Times New Roman", serif;
 }
 
-/* Atmospheric Studio Ambient Lights */
-.studio-ambient-lighting {
-  position: relative;
+.text-gold-gradient {
+  background: linear-gradient(135deg, #fce09b 0%, var(--accent-gold) 50%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
-.studio-ambient-lighting::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -10%;
-  width: 50vw;
-  height: 600px;
-  background: radial-gradient(circle, var(--ambient-glow-left) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-  filter: blur(80px);
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #eab308 50%, #d97706 100%);
+  color: var(--accent-gold-text);
+  font-weight: 700;
+  box-shadow: 0 4px 20px -2px var(--accent-gold-glow);
+  transition: all 0.2s ease;
 }
-.studio-ambient-lighting::after {
-  content: "";
-  position: absolute;
-  top: 50px;
-  right: -10%;
-  width: 55vw;
-  height: 700px;
-  background: radial-gradient(circle, var(--ambient-glow-right) 0%, transparent 65%);
-  pointer-events: none;
-  z-index: 0;
-  filter: blur(90px);
+
+.btn-gold:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 6px 24px -2px var(--accent-gold-glow);
+  transform: translateY(-1px);
+}
+
+/* Studio Technical Grid Pattern */
+.studio-grid-bg {
+  background-image:
+    linear-gradient(to right, var(--grid-line-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line-color) 1px, transparent 1px);
+  background-size: 36px 36px;
 }
 
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-page);
+  background: var(--bg-surface-0);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-lime);
+  background: var(--text-muted);
 }
 
-/* Neon Brutalist Glowing Shadows */
-.glow-lime-sm {
-  box-shadow: 0 0 15px var(--accent-lime-glow);
-}
-.glow-lime-lg {
-  box-shadow: 0 0 30px var(--accent-lime-glow), 0 0 60px var(--accent-lime-glow);
-}
-.glow-text-lime {
-  text-shadow: 0 0 20px var(--accent-lime-glow);
-}
-
-/* Keyframes */
-@keyframes pulseScanline {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
+/* Subtle glow animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 8px var(--accent-gold-glow));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 16px var(--accent-gold-glow));
+  }
 }
 
-@keyframes waveBounce {
-  0%, 100% { transform: scaleY(0.3); }
-  50% { transform: scaleY(1); }
+.animate-pulse-glow {
+  animation: pulseGlow 2.4s ease-in-out infinite;
 }
 
-@keyframes laserSweep {
-  0% { left: 0%; opacity: 0.8; }
-  50% { left: 95%; opacity: 1; }
-  100% { left: 0%; opacity: 0.8; }
+/* Microphone subtle hover breath */
+@keyframes micFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
-.animate-scanline {
-  animation: pulseScanline 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.animate-mic-float {
+  animation: micFloat 6s ease-in-out infinite;
 }
 
-.animate-laser-sweep {
-  animation: laserSweep 4s ease-in-out infinite;
+/* Ribbon wave background animation */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.5deg);
+  }
 }
 
-/* Reduced motion preference */
+.animate-float-slow {
+  animation: floatSlow 8s ease-in-out infinite;
+}
+
+/* Respect user reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

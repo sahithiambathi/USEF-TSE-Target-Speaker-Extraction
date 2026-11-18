@@ -1,11 +1,14 @@
 import React, { useRef, useState } from "react";
-import { UploadCloud, FileAudio, Trash2, RefreshCw, AlertCircle, Waves, User } from "lucide-react";
+import { UploadCloud, FileAudio, Trash2, RefreshCw, CheckCircle2, AlertCircle, Volume2, User } from "lucide-react";
 import AudioWavePlayer from "./AudioWavePlayer";
 
 export default function AudioUploadCard({
   id,
   label,
   channelCode,
+  subtitle,
+  hint,
+  icon: _Icon,
   variant = "mixture", // "mixture" | "reference"
   file,
   audioUrl,
@@ -28,7 +31,7 @@ export default function AudioUploadCard({
     const isValid = allowedExtensions.some((ext) => name.endsWith(ext));
 
     if (!isValid) {
-      setFormatError("Unsupported format. Please upload WAV, MP3, FLAC, OGG, or M4A.");
+      setFormatError("Unsupported audio format. Please upload WAV, MP3, FLAC, OGG, or M4A.");
       return;
     }
 
@@ -75,13 +78,12 @@ export default function AudioUploadCard({
   };
 
   const isMixture = variant === "mixture";
-  const Icon = isMixture ? Waves : User;
 
   return (
     <div
-      className={`flex-1 flex flex-col bg-[var(--bg-surface-1)] border rounded-2xl p-5 sm:p-6 transition-all duration-200 shadow-[var(--shadow-card)] relative ${
+      className={`flex-1 flex flex-col bg-[var(--bg-surface-1)] border rounded-2xl p-5 sm:p-6 transition-all duration-300 shadow-[var(--shadow-card)] relative ${
         isDragging
-          ? "border-[var(--accent-lime)] bg-[var(--accent-lime-dim)] shadow-[0_0_25px_var(--accent-lime-glow)]"
+          ? "border-[var(--accent-gold)] bg-[var(--accent-gold-dim)] shadow-[0_0_24px_var(--accent-gold-glow)]"
           : file
           ? "border-[var(--border-subtle)]"
           : "border-[var(--border-subtle)] hover:border-[var(--border-strong)]"
@@ -98,18 +100,40 @@ export default function AudioUploadCard({
         disabled={isExtracting}
       />
 
-      {/* Card Header matching reference layout */}
-      <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-[var(--border-subtle)]">
-        <div className="flex items-center gap-2.5">
-          <Icon className="w-4 h-4 text-[var(--accent-lime)]" />
-          <h3 className="font-mono text-xs uppercase tracking-wider font-extrabold text-[var(--text-primary)]">
-            {label}
-          </h3>
+      {/* Card Header matching Reference 1 */}
+      <div className="flex items-start justify-between pb-4 mb-4 border-b border-[var(--border-subtle)]">
+        <div className="flex items-center gap-3">
+          <div
+            className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${
+              isMixture
+                ? "bg-[var(--accent-purple-dim)] text-[var(--accent-purple)] border-[var(--accent-purple)]/30"
+                : "bg-[var(--accent-gold-dim)] text-[var(--accent-gold)] border-[var(--accent-gold)]/30"
+            }`}
+          >
+            {isMixture ? <Volume2 className="w-5 h-5" /> : <User className="w-5 h-5" />}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-sans font-bold text-[var(--text-primary)] text-sm tracking-tight">
+                {label}
+              </h3>
+              {channelCode && (
+                <span className="font-mono text-[9px] font-bold text-[var(--text-muted)] bg-[var(--bg-surface-2)] px-1.5 py-0.5 rounded">
+                  {channelCode}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5">{subtitle}</p>
+          </div>
         </div>
 
-        {file && (
-          <span className="font-mono text-[10px] font-bold text-[var(--accent-lime)] bg-[var(--accent-lime-dim)] border border-[var(--accent-lime)]/30 px-2 py-0.5 rounded-full">
-            READY
+        {file ? (
+          <span className="inline-flex items-center gap-1 font-mono text-[10px] font-bold text-[var(--accent-gold)] bg-[var(--accent-gold-dim)] border border-[var(--accent-gold)]/30 px-2 py-0.5 rounded-full">
+            <CheckCircle2 className="w-3 h-3" /> READY
+          </span>
+        ) : (
+          <span className="font-mono text-[10px] text-[var(--text-muted)] bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] px-2 py-0.5 rounded-full">
+            EMPTY
           </span>
         )}
       </div>
@@ -118,10 +142,12 @@ export default function AudioUploadCard({
       {file && audioUrl ? (
         /* Loaded File State: Waveform Player & Metadata */
         <div className="flex-1 flex flex-col justify-between space-y-4">
-          {/* File Meta Info Bar */}
-          <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-xs font-mono">
-            <div className="flex items-center gap-2 truncate pr-2">
-              <FileAudio className="w-4 h-4 text-[var(--accent-lime)] shrink-0" />
+          {/* File Meta Info Bar matching Reference 1 */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-xs font-mono">
+            <div className="flex items-center gap-2.5 truncate pr-2">
+              <div className="w-7 h-7 rounded-lg bg-[var(--bg-surface-3)] flex items-center justify-center shrink-0">
+                <FileAudio className="w-4 h-4 text-[var(--accent-gold)]" />
+              </div>
               <span className="truncate font-semibold text-[var(--text-primary)]" title={file.name}>
                 {file.name}
               </span>
@@ -133,13 +159,15 @@ export default function AudioUploadCard({
             </div>
           </div>
 
-          {/* Genuine Audio-Reactive Web Audio Waveform Player */}
-          <AudioWavePlayer
-            audioUrl={audioUrl}
-            title={file.name}
-            mode={variant}
-            channelCode={channelCode}
-          />
+          {/* Web Audio Waveform Player */}
+          <div className="p-1">
+            <AudioWavePlayer
+              audioUrl={audioUrl}
+              title={file.name}
+              mode={variant}
+              channelCode={channelCode}
+            />
+          </div>
 
           {/* Action Row: Replace / Remove */}
           <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)] text-xs font-mono">
@@ -165,27 +193,28 @@ export default function AudioUploadCard({
           </div>
         </div>
       ) : (
-        /* Empty Upload Zone matching reference design */
+        /* Empty Upload Zone matching Reference 1 (dotted border, cloud icon, clickable) */
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => !isExtracting && fileInputRef.current?.click()}
-          className="flex-1 flex flex-col items-center justify-center p-8 border border-dashed border-[var(--border-subtle)] hover:border-[var(--accent-lime)]/70 rounded-xl bg-[var(--bg-surface-0)]/50 hover:bg-[var(--bg-surface-2)]/40 transition-all duration-200 cursor-pointer text-center group min-h-[180px]"
+          className="flex-1 flex flex-col items-center justify-center p-8 border-2 border-dashed border-[var(--border-subtle)] hover:border-[var(--accent-gold)]/60 rounded-xl bg-[var(--bg-surface-0)]/40 hover:bg-[var(--bg-surface-2)]/40 transition-all duration-200 cursor-pointer text-center group min-h-[190px]"
         >
-          <div className="w-10 h-10 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-muted)] group-hover:text-[var(--accent-lime)] group-hover:border-[var(--accent-lime)]/40 transition-colors mb-3">
-            <UploadCloud className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-2xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-muted)] group-hover:text-[var(--accent-gold)] group-hover:border-[var(--accent-gold)]/40 transition-colors mb-3">
+            <UploadCloud className="w-6 h-6" />
           </div>
 
-          <p className="text-xs font-sans text-[var(--text-secondary)]">
-            Drag & drop your file here
+          <h4 className="text-xs font-sans font-medium text-[var(--text-primary)]">
+            Drag & drop your audio file here
+          </h4>
+          <p className="text-xs text-[var(--accent-gold)] font-medium mt-1">
+            or click to browse
           </p>
-          <p className="text-xs font-sans font-bold text-[var(--accent-lime)] underline decoration-[var(--accent-lime)]/40 underline-offset-4 mt-0.5">
-            or choose file
+
+          <p className="text-[11px] text-[var(--text-muted)] max-w-xs mt-2">
+            {hint}
           </p>
-          <span className="text-[10px] font-mono text-[var(--text-dim)] mt-2">
-            WAV, MP3, FLAC, M4A
-          </span>
         </div>
       )}
 

@@ -80,3 +80,20 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 5. Click **"Extract Target Speaker"**.
 6. Watch the real-time inference progress. Within ~9 seconds (CPU), the model isolates Speaker A's speech.
 7. Listen to the extracted target speech in the result card and click **"Download WAV"**.
+
+---
+
+## Original Research and Attribution
+
+This project is based on the research work **USEF-TSE: Universal Speaker Embedding Free Target Speaker Extraction**.
+
+- Original repository: https://github.com/ZBang/USEF-TSE
+- Research paper: https://arxiv.org/abs/2409.02615
+- Original code licence: Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+- Licence details: https://creativecommons.org/licenses/by-nc/4.0/
+
+The original USEF-TSE source code is retained in `original-USEF-TSE/` with its original LICENSE file.
+
+This project adds a web application interface and integration for demonstrating target speaker extraction. The additional application components are separate contributions.
+
+The original research code is attributed to its respective authors. This project is an independent academic implementation and is not an official release of the original authors.

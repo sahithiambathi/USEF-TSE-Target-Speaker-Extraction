@@ -1,70 +1,136 @@
 import React from "react";
-import { User, Check, Waves } from "lucide-react";
+import { Users, Mic, Cpu, Download, ArrowRight, ArrowDown } from "lucide-react";
 
 export default function HowItWorksSection() {
   const steps = [
     {
       num: "01",
-      title: "Upload Mixture",
-      desc: "Upload an audio recording containing multiple speakers.",
-      icon: Waves,
+      badge: "CH-MIX",
+      title: "Upload Mixture Audio",
+      desc: "Upload an audio recording containing multiple speakers conversing or overlapping in the same acoustic space.",
+      icon: Users,
+      highlight: "WAV, MP3, FLAC, M4A",
+      tag: "Multi-Speaker",
     },
     {
       num: "02",
-      title: "Add Reference",
-      desc: "Provide a short recording of the speaker you want.",
-      icon: User,
+      badge: "REF",
+      title: "Add Target Reference",
+      desc: "Provide a short, clean recording (1–5 seconds) of the speaker you want to isolate, serving as a vocal guide.",
+      icon: Mic,
+      highlight: "1 to 5 Seconds",
+      tag: "Reference",
     },
     {
       num: "03",
-      title: "Extract Voice",
-      desc: "Get the isolated speaker's voice using USEF-TSE.",
-      icon: Check,
+      badge: "SEPARATION",
+      title: "Extract Target Speech",
+      desc: "The USEF-TSE model computes cross-attention to isolate the target speaker and attenuate interfering voices.",
+      icon: Cpu,
+      highlight: "USEF-TFGridNet",
+      tag: "Neural Model",
+    },
+    {
+      num: "04",
+      badge: "OUTPUT-WAV",
+      title: "Listen and Download",
+      desc: "Listen to the isolated speech, inspect the genuine waveform, compare A/B against mixture, and export 8 kHz WAV.",
+      icon: Download,
+      highlight: "Clean 8 kHz WAV",
+      tag: "Target Ready",
+      isFinal: true,
     },
   ];
 
   return (
-    <section id="how-it-works" className="py-12 sm:py-16 border-b border-[var(--border-subtle)] bg-[var(--bg-canvas)]/40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        {/* Clean Center Divider with 'HOW IT WORKS' matching reference */}
-        <div className="relative flex items-center justify-center mb-10">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-[var(--border-subtle)]" />
-          </div>
-          <div className="relative px-4 bg-[var(--bg-page)] text-xs font-mono font-bold tracking-widest uppercase text-[var(--text-secondary)]">
-            HOW IT WORKS
-          </div>
+    <section id="how-it-works" className="py-16 sm:py-24 border-b border-[var(--border-subtle)] bg-[var(--bg-surface-0)]/40 relative">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        {/* Section Header matching Previous Website reference & Current Theme */}
+        <div className="text-center max-w-2xl mx-auto mb-14">
+
+          <h2 className="text-3xl sm:text-4xl font-editorial font-bold tracking-tight text-[var(--text-primary)]">
+            How It{" "}
+            <span className="italic font-normal text-gold-gradient">Works</span>
+          </h2>
+          <p className="mt-3 text-sm text-[var(--text-secondary)] font-sans">
+            A seamless reference-guided speech separation workflow designed for research and real-world clarity.
+          </p>
         </div>
 
-        {/* 3 Step Cards matching reference design */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {steps.map((step) => {
+        {/* 4-Step Cards Row with Vertically Centered Arrows Between Cards */}
+        <div className="flex flex-col lg:flex-row items-stretch justify-between gap-3 lg:gap-2 relative">
+          {steps.map((step, idx) => {
             const Icon = step.icon;
+            const isLast = idx === steps.length - 1;
+
             return (
-              <div
-                key={step.num}
-                className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-surface-1)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)] transition-all hover:border-[var(--accent-lime)]/50"
-              >
-                {/* Number Badge with Circle */}
-                <div className="w-9 h-9 rounded-full bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] flex items-center justify-center text-xs font-mono font-bold text-[var(--accent-lime)] shrink-0 shadow-sm">
-                  {step.num}
+              <React.Fragment key={step.num}>
+                {/* Step Card matching previous website composition */}
+                <div
+                  className={`flex-1 min-w-0 rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-[var(--shadow-card)] relative group ${
+                    step.isFinal
+                      ? "bg-gradient-to-b from-[var(--bg-surface-1)] to-[var(--accent-gold-dim)] border-2 border-[var(--accent-gold)]/70 shadow-[0_4px_24px_-4px_var(--accent-gold-glow)]"
+                      : "bg-[var(--bg-surface-1)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)]"
+                  }`}
+                >
+                  <div>
+                    {/* Top Bar: Large Step Number + Channel/State Badge */}
+                    <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-[var(--border-subtle)]">
+                      <span className="font-mono text-2xl font-bold tracking-wider text-[var(--text-muted)] group-hover:text-[var(--accent-gold)] transition-colors">
+                        {step.num}
+                      </span>
+                      <span className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded bg-[var(--bg-surface-2)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+                        {step.badge}
+                      </span>
+                    </div>
+
+                    {/* Icon & Heading */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 transition-transform group-hover:scale-105 ${
+                          step.isFinal
+                            ? "bg-[var(--accent-gold)] text-[var(--accent-gold-text)] border-[var(--accent-gold)] shadow-sm"
+                            : "bg-[var(--accent-purple-dim)] text-[var(--accent-purple)] border-[var(--accent-purple)]/30"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <h3 className="text-base font-sans font-bold text-[var(--text-primary)] leading-tight">
+                        {step.title}
+                      </h3>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-4">
+                      {step.desc}
+                    </p>
+                  </div>
+
+                  {/* Card Footer Detail Row */}
+                  <div className="pt-3 border-t border-[var(--border-subtle)]/70 text-[11px] font-mono text-[var(--text-muted)] flex items-center justify-between">
+                    <span className="truncate pr-1">{step.highlight}</span>
+                    <span
+                      className={`text-[10px] font-semibold shrink-0 ${
+                        step.isFinal
+                          ? "text-[var(--accent-gold)] font-bold"
+                          : "text-[var(--text-secondary)]"
+                      }`}
+                    >
+                      {step.tag}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Step Icon */}
-                <div className="w-9 h-9 rounded-xl bg-[var(--accent-lime-dim)] text-[var(--accent-lime)] flex items-center justify-center shrink-0">
-                  <Icon className="w-4 h-4" />
-                </div>
-
-                {/* Step Content */}
-                <div className="space-y-0.5">
-                  <h3 className="text-sm font-sans font-bold text-[var(--text-primary)] tracking-tight">
-                    {step.title}
-                  </h3>
-                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-sans">
-                    {step.desc}
-                  </p>
-                </div>
-              </div>
+                {/* Vertically Centered Arrow OUTSIDE the cards */}
+                {!isLast && (
+                  <div className="flex items-center justify-center text-[var(--accent-gold)] opacity-80 shrink-0 self-center py-1 lg:py-0 px-1">
+                    {/* Desktop: Horizontal Arrow */}
+                    <ArrowRight className="hidden lg:block w-5 h-5" />
+                    {/* Mobile/Tablet: Vertical Arrow */}
+                    <ArrowDown className="lg:hidden w-5 h-5" />
+                  </div>
+                )}
+              </React.Fragment>
             );
           })}
         </div>

@@ -1,7 +1,59 @@
+# ==========================================
+# USEF-TSE GitHub .gitignore
+# ==========================================
+
+# 1. Python & PyTorch artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# 2. PyTorch Large Model Weights (>100MB)
+backend/checkpoints/*.pth.tar
+backend/checkpoints/*.pt
+backend/checkpoints/*.ckpt
+backend/checkpoints/*.bin
+# Keep directory structure & guide tracked
+!backend/checkpoints/.gitkeep
+!backend/checkpoints/README.md
+
+# 3. Audio Processing Temp Storage
+backend/temp/*
+!backend/temp/.gitkeep
+
+# 4. Node.js & Vite Frontend
 node_modules/
 dist/
-__pycache__/
-*.pyc
-backend/temp/
-backend/checkpoints/
+dist-ssr/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 5. Local Redesign & Safety Backups
+*_backup/
+frontend_neon_brutalist_backup/
+frontend_src_neon_brutalist_backup/
+frontend_src_original_backup/
+frontend/src_backup/
+
+# 6. Operating System & IDE junk
 .DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+.vscode/*
+!.vscode/extensions.json
+.idea/

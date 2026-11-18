@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Users, Mic, Sparkles } from "lucide-react";
 import Navbar from "./components/Navbar";
 import HeroSection from "./components/HeroSection";
 import HowItWorksSection from "./components/HowItWorksSection";
-import ExtractionWorkspace from "./components/ExtractionWorkspace";
+import AudioUploadCard from "./components/AudioUploadCard";
+import ExtractionAction from "./components/ExtractionAction";
 import OutputSection from "./components/OutputSection";
+import InsideExtractionProcess from "./components/InsideExtractionProcess";
 import AboutResearchSection from "./components/AboutResearchSection";
 import Footer from "./components/Footer";
 import { ThemeProvider } from "./context/ThemeContext";
-import { getBackendStatus, fetchDemoSamples, fetchSampleAudioBlob, extractSpeaker } from "./services/api";
 
 function MainStudio() {
   const [mixedFile, setMixedFile] = useState(null);
@@ -18,18 +20,34 @@ function MainStudio() {
   const [refAudioUrl, setRefAudioUrl] = useState(null);
   const [refDuration, setRefDuration] = useState(0);
 
-  const [backendState, setBackendState] = useState({
-    state: "LOADING",
-    isReady: false,
-    detail: "Connecting to USEF-TSE engine...",
-    device: "cpu",
-  });
-
+  const [modelStatus, setModelStatus] = useState(null);
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionResult, setExtractionResult] = useState(null);
   const [error, setError] = useState(null);
 
-  // Helper to extract audio duration and URL from File
+  const workspaceRef = useRef(null);
+
+  const checkStatus = useCallback(async () => {
+    try {
+      const res = await fetch("/api/status");
+      if (res.ok) {
+        const data = await res.json();
+        setModelStatus(data);
+      } else {
+        setModelStatus({ status: "error", detail: "Backend responded with error status" });
+      }
+    } catch (err) {
+      console.warn("Backend status check failed:", err);
+      setModelStatus({ status: "error", detail: "Cannot connect to backend server" });
+    }
+  }, []);
+
+  // Check backend model status on mount
+  useEffect(() => {
+    checkStatus();
+  }, [checkStatus]);
+
+  // Helper to extract duration and create URL from File
   const getAudioDuration = (file) => {
     return new Promise((resolve) => {
       const audio = new Audio();
@@ -43,28 +61,6 @@ function MainStudio() {
       };
     });
   };
-
-  // Smart Backend Status Polling
-  const checkStatus = useCallback(async () => {
-    const status = await getBackendStatus();
-    setBackendState(status);
-    return status;
-  }, []);
-
-  useEffect(() => {
-    checkStatus();
-
-    // Auto-poll: every 2.5s if not ready (to pick up model load completion automatically),
-    // and every 15s once ready (heartbeat)
-    const interval = setInterval(async () => {
-      const status = await checkStatus();
-      if (status.isReady) {
-        // Model is ready, switch to slow heartbeat
-      }
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [checkStatus]);
 
   const handleSelectMixed = async (file) => {
     setError(null);
@@ -102,47 +98,72 @@ function MainStudio() {
     setExtractionResult(null);
   };
 
-  // Load Built-in Demo Samples
   const handleLoadSample = async () => {
     try {
       setError(null);
       setIsExtracting(false);
       setExtractionResult(null);
 
-      const samplesData = await fetchDemoSamples().catch(() => ({
-        mixed: { fullUrl: "/api/samples/mixed_speaker.wav", name: "mixed_speaker.wav" },
-        reference: { fullUrl: "/api/samples/speaker_a_ref.wav", name: "speaker_a_ref.wav" },
-      }));
+      // Default sample endpoints
+      let mixUrl = "/api/samples/mixed_speaker.wav";
+      let refUrl = "/api/samples/speaker_a_ref.wav";
+      let mixFilename = "mixed_speaker.wav";
+      let refFilename = "speaker_a_ref.wav";
 
-      const mixUrl = samplesData.mixed?.fullUrl || "/api/samples/mixed_speaker.wav";
-      const refUrl = samplesData.reference?.fullUrl || "/api/samples/speaker_a_ref.wav";
-      const mixFilename = samplesData.mixed?.name || "mixed_speaker.wav";
-      const refFilename = samplesData.reference?.name || "speaker_a_ref.wav";
+      // Query /api/samples to resolve configured filenames
+      try {
+        const samplesRes = await fetch("/api/samples");
+        if (samplesRes.ok) {
+          const samplesData = await samplesRes.json();
+          if (samplesData.mixed?.url) mixUrl = samplesData.mixed.url;
+          if (samplesData.mixed?.name) mixFilename = samplesData.mixed.name;
+          if (samplesData.reference?.url) refUrl = samplesData.reference.url;
+          else if (samplesData.speaker_a?.url) refUrl = samplesData.speaker_a.url;
+          if (samplesData.reference?.name) refFilename = samplesData.reference.name;
+          else if (samplesData.speaker_a?.name) refFilename = samplesData.reference.name;
+        }
+      } catch (metaErr) {
+        console.warn("Falling back to direct demo endpoints:", metaErr);
+      }
 
-      const [mixBlob, refBlob] = await Promise.all([
-        fetchSampleAudioBlob(mixUrl),
-        fetchSampleAudioBlob(refUrl),
+      // Fetch the two bundled audio files
+      const [mixRes, refRes] = await Promise.all([
+        fetch(mixUrl),
+        fetch(refUrl),
       ]);
 
-      const sampleMixFile = new File([mixBlob], mixFilename, { type: "audio/wav" });
-      const sampleRefFile = new File([refBlob], refFilename, { type: "audio/wav" });
+      if (!mixRes.ok) {
+        throw new Error(`Failed to load mixture recording from ${mixUrl} (${mixRes.status})`);
+      }
+      if (!refRes.ok) {
+        throw new Error(`Failed to load reference recording from ${refUrl} (${refRes.status})`);
+      }
+
+      const mixBlob = await mixRes.blob();
+      const refBlob = await refRes.blob();
+
+      const sampleMixFile = new File([mixBlob], mixFilename, {
+        type: "audio/wav",
+      });
+      const sampleRefFile = new File([refBlob], refFilename, {
+        type: "audio/wav",
+      });
 
       await handleSelectMixed(sampleMixFile);
       await handleSelectRef(sampleRefFile);
 
-      // Scroll to workspace
+      // Smooth scroll down to workspace
       const el = document.getElementById("workspace");
       if (el) el.scrollIntoView({ behavior: "smooth" });
     } catch (err) {
-      console.error("Error loading demo audio samples:", err);
-      setError(`Failed to load demo samples: ${err.message}. Is the backend running?`);
+      console.error("Error loading demo samples:", err);
+      setError("Failed to fetch demo samples: " + err.message);
     }
   };
 
-  // Real Model Inference Extraction
   const handleExtract = async () => {
     if (!mixedFile || !refFile) {
-      setError("Please provide both a Mixture Recording and a Target Voice Reference.");
+      setError("Please provide both a Mixture Audio recording and a Target Reference sample.");
       return;
     }
 
@@ -150,18 +171,32 @@ function MainStudio() {
     setIsExtracting(true);
     setExtractionResult(null);
 
+    const formData = new FormData();
+    formData.append("mixed_audio", mixedFile);
+    formData.append("reference_audio", refFile);
+
     try {
-      const data = await extractSpeaker(mixedFile, refFile);
+      const response = await fetch("/api/extract", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Speaker extraction failed on server.");
+      }
+
       setExtractionResult(data);
 
       // Smooth scroll to output
       setTimeout(() => {
-        const outEl = document.getElementById("result");
+        const outEl = document.getElementById("output-result");
         if (outEl) outEl.scrollIntoView({ behavior: "smooth" });
-      }, 150);
+      }, 100);
     } catch (err) {
-      console.error("Extraction failed:", err);
-      setError(err.message || "Target speaker extraction failed on the inference server.");
+      console.error("Extraction error:", err);
+      setError(err.message || "Failed to process target speaker extraction.");
     } finally {
       setIsExtracting(false);
     }
@@ -170,8 +205,6 @@ function MainStudio() {
   const handleReset = () => {
     setExtractionResult(null);
     setError(null);
-    const el = document.getElementById("workspace");
-    if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
   const scrollToWorkspace = () => {
@@ -179,63 +212,125 @@ function MainStudio() {
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
-  const canExtract = Boolean(mixedFile && refFile);
+  const canExtract = Boolean(
+    mixedFile && refFile && (!modelStatus || modelStatus.status === "ready")
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg-page)] text-[var(--text-primary)] transition-colors duration-200">
-      {/* Top Navbar matching reference design */}
+      {/* Top Navigation */}
       <Navbar
         onLoadSample={handleLoadSample}
         isExtracting={isExtracting}
-        backendState={backendState}
+        modelStatus={modelStatus}
       />
 
       <main className="flex-1">
-        {/* Hero Section with Brutalist Heading & Cinematic Waveform Canvas */}
+        {/* 1. Hero Section matching Reference 1 */}
         <HeroSection
           onStartExtracting={scrollToWorkspace}
           onLoadSample={handleLoadSample}
           isExtracting={isExtracting}
         />
 
-        {/* How It Works Section */}
+        {/* 2. How It Works Section (User Workflow - placed before Extraction Workspace) */}
         <HowItWorksSection />
 
-        {/* Main Extraction Workspace Studio Chassis */}
-        <ExtractionWorkspace
-          mixedFile={mixedFile}
-          mixedAudioUrl={mixedAudioUrl}
-          mixedDuration={mixedDuration}
-          refFile={refFile}
-          refAudioUrl={refAudioUrl}
-          refDuration={refDuration}
-          onSelectMixed={handleSelectMixed}
-          onRemoveMixed={handleRemoveMixed}
-          onSelectRef={handleSelectRef}
-          onRemoveRef={handleRemoveRef}
-          isExtracting={isExtracting}
-          canExtract={canExtract}
-          onExtract={handleExtract}
-          error={error}
-          onClearError={() => setError(null)}
-          backendState={backendState}
-          onRecheckBackend={checkStatus}
-          onLoadSample={handleLoadSample}
-        />
+        {/* 3. Main Extraction Workspace Section */}
+        <section id="workspace" ref={workspaceRef} className="py-16 sm:py-20 border-b border-[var(--border-subtle)] relative">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            {/* Workspace Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-4 border-b border-[var(--border-subtle)]">
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-sans font-bold tracking-tight text-[var(--text-primary)]">
+                  Extract Target Speech
+                </h2>
+                <p className="mt-1 text-xs text-[var(--text-secondary)] font-sans">
+                  Upload a mixed recording and provide a reference sample to isolate the voice you want.
+                </p>
+              </div>
 
-        {/* Extracted Speech Output Section */}
-        <OutputSection
-          result={extractionResult}
-          mixedAudioUrl={mixedAudioUrl}
-          mixedFile={mixedFile}
-          onReset={handleReset}
-        />
+              {/* Action Toolbar */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleLoadSample}
+                  disabled={isExtracting}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-mono font-medium bg-[var(--bg-surface-2)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-[var(--accent-gold)]/50 transition-all cursor-pointer disabled:opacity-50 shadow-sm"
+                  title="Auto-fill with tested demo recordings"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[var(--accent-gold)]" />
+                  <span>Load Demo Samples</span>
+                </button>
+              </div>
+            </div>
 
-        {/* Academic Foundation & Architecture Section */}
+            {/* Two-Column Audio Upload Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Card 1: Mixture Audio */}
+              <AudioUploadCard
+                id="mixture-audio-input"
+                label="Mixture Audio"
+                channelCode="MIX"
+                subtitle="The recording containing multiple speakers."
+                hint="Provide a recording where multiple people are speaking or overlapping."
+                icon={Users}
+                variant="mixture"
+                file={mixedFile}
+                audioUrl={mixedAudioUrl}
+                duration={mixedDuration}
+                onFileSelect={handleSelectMixed}
+                onRemove={handleRemoveMixed}
+                isExtracting={isExtracting}
+              />
+
+              {/* Card 2: Target Reference */}
+              <AudioUploadCard
+                id="reference-audio-input"
+                label="Target Reference"
+                channelCode="REF"
+                subtitle="A short sample of the speaker you want."
+                hint="Provide a clean 1 to 5 second audio snippet of the target voice to guide extraction."
+                icon={Mic}
+                variant="reference"
+                file={refFile}
+                audioUrl={refAudioUrl}
+                duration={refDuration}
+                onFileSelect={handleSelectRef}
+                onRemove={handleRemoveRef}
+                isExtracting={isExtracting}
+              />
+            </div>
+
+            {/* Extraction Trigger Action with In-Button Loading State */}
+            <ExtractionAction
+              canExtract={canExtract}
+              isExtracting={isExtracting}
+              onExtract={handleExtract}
+              error={error}
+              onClearError={() => setError(null)}
+            />
+
+            {/* Extracted Audio Output Section */}
+            <div id="output-result" className="mt-8">
+              <OutputSection
+                result={extractionResult}
+                mixedAudioUrl={mixedAudioUrl}
+                mixedFile={mixedFile}
+                onReset={handleReset}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* 4. Inside the Extraction Process Section */}
+        <InsideExtractionProcess />
+
+        {/* 5. About / Research Paper Section */}
         <AboutResearchSection />
       </main>
 
-      {/* Footer */}
+      {/* 6. Footer */}
       <Footer />
     </div>
   );
